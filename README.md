@@ -1,162 +1,332 @@
-VERYLOAD - VeryFit Watch Face Sideloader
-=========================================
+# VERYLOAD - VeryFit Watch Face Sideloader
 
-A cross-platform desktop application for sideloading custom watch faces onto
-VeryFit/IDO smartwatches via BLE.
+A cross-platform desktop application for sideloading custom watch faces onto **VeryFit/IDO smartwatches** using Bluetooth Low Energy (BLE).
 
-FEATURES
---------
+VERYLOAD provides a complete workflow for discovering compatible devices, transferring `.iwf` watch face files, and applying custom watch faces without requiring the official VeryFit application.
 
-- BLE Device Discovery - Scan for nearby compatible smartwatches
-- Watch Face Upload - Upload .iwf watch face files to your device
-- Real-time Progress - Visual progress bar with status logging
-- Automatic Compression - FastLZ compression for efficient transfers (optional)
-- Cancellation Support - Cancel ongoing uploads at any time
-- Cross-platform - Works on Windows, macOS, and Linux
+> ⚠️ **Warning:** This tool uses a reverse-engineered protocol. Sideloading custom watch faces may void your device warranty. Incorrect files or interrupted transfers may cause watch face corruption or, in rare cases, boot issues. Use at your own risk.
 
-PREREQUISITES
--------------
+---
 
-- Python 3.10 or higher
-- A VeryFit/IDO compatible smartwatch
+## Features
+
+- **BLE Device Discovery**  
+  Scan and identify nearby compatible VeryFit/IDO smartwatches.
+
+- **Watch Face Uploading**  
+  Upload custom `.iwf` watch face files directly to your device.
+
+- **Real-Time Transfer Progress**  
+  Monitor upload status with progress tracking and detailed logs.
+
+- **FastLZ Compression Support**  
+  Optional FastLZ compression matching the official VeryFit transfer method.
+
+- **Upload Cancellation**  
+  Safely cancel an active transfer at any time.
+
+- **Cross-Platform Support**  
+  Runs on Windows, macOS, and Linux.
+
+- **Reverse-Engineered Protocol Implementation**  
+  Implements the required BLE communication layers for watch face transfers.
+
+---
+
+# Requirements
+
+## Software
+
+- Python **3.10 or newer**
+- BLE-compatible operating system
 - Bluetooth LE adapter
 
-INSTALLATION
-------------
+## Hardware
 
-1. Clone the repository
+- A VeryFit/IDO compatible smartwatch
+- Bluetooth enabled on your computer
 
-   git clone https://github.com/coolsteel712/veryload
-   cd veryload
+---
 
-2. Set up a virtual environment (recommended)
+# Installation
 
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+## 1. Clone the repository
 
-3. Install dependencies
+```bash
+git clone https://github.com/coolsteel712/veryload
+cd veryload
+```
 
-   pip install -r requirements.txt
+## 2. Create a virtual environment (recommended)
 
-4. Run the application
+### Windows
 
-   python main.py
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
 
-USAGE GUIDE
------------
+### macOS / Linux
 
-1. Connect to your watch
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
-   a. Click Scan to discover nearby BLE devices
-   b. Select your watch from the list
-   c. Click Connect to establish a connection
+## 3. Install dependencies
 
-2. Select a watch face
+```bash
+pip install -r requirements.txt
+```
 
-   a. Click Browse... to open a file dialog
-   b. Navigate to and select your .iwf watch face file
-   c. The filename will appear next to the browse button
+## 4. Launch VERYLOAD
 
-3. Upload the watch face
+```bash
+python main.py
+```
 
-   a. Click Upload to start the transfer
-   b. Monitor the progress bar and status log
-   c. Wait for the "Upload complete" confirmation
-   d. The watch face should now be installed on your device
+---
 
-4. Cancel an upload
+# Usage Guide
 
-   - Click Cancel during an active upload to stop the transfer
+## 1. Connect Your Watch
 
-PROTOCOL DETAILS
-----------------
+1. Open VERYLOAD.
+2. Click **Scan** to search for nearby BLE devices.
+3. Select your VeryFit/IDO smartwatch.
+4. Click **Connect**.
 
-VeryLoad implements the complete VeryFit BLE protocol for watch face uploads:
+---
 
-- Scanning - BLE device discovery with configurable timeout
-- Connection - Secure BLE connection establishment
-- Transfer Control - D1 protocol frames for file metadata and transfer management
-- Data Streaming - Chunked file transfer with progress tracking
-- Verification - End-to-end checksum validation
-- Application - V3 command frames to apply the watch face
+## 2. Select a Watch Face
 
-TECHNICAL NOTES
----------------
+1. Click **Browse...**
+2. Select a valid `.iwf` watch face file.
+3. Confirm that the filename appears in the application.
 
-Compression
+---
 
-The application supports two compression modes:
-- FastLZ (default) - Real FastLZ level-1 compression, matching the official app
-- None - Direct file upload without compression (useful for debugging)
+## 3. Upload the Watch Face
 
-Protocol Implementation
+1. Click **Upload**.
+2. Monitor the progress bar and transfer log.
+3. Wait until:
 
-All protocol fields have been validated against captured traffic from the
-official VeryFit app. See PROTOCOL_SPEC.md for detailed documentation.
+```
+Upload complete
+```
 
-Known Limitations
+appears.
 
-- Only .iwf watch face files are supported
-- Requires a compatible VeryFit/IDO device
-- Upload may be interrupted by poor BLE signal strength
+The watch should now apply the uploaded watch face.
 
-TROUBLESHOOTING
----------------
+---
 
-"No BLE devices found"
-- Ensure your watch is in discoverable mode
-- Check that Bluetooth is enabled on your computer
-- Try moving closer to the watch
+## 4. Cancel an Upload
 
-"Connection failed"
-- Restart your watch and try again
-- Ensure no other app is connected to the watch
-- Check your BLE adapter drivers
+During an active transfer:
 
-"Upload failed"
-- Verify the .iwf file is valid
-- Check that you have sufficient storage on the watch
-- Try using the uncompressed mode
+- Click **Cancel** to stop the upload process.
 
-DEVELOPMENT
------------
+---
 
-Running tests
+# Protocol Implementation
 
-   pytest tests/
+VERYLOAD implements the VeryFit BLE watch face transfer protocol:
 
-Building executable
+### Device Discovery
 
-   pyinstaller veryload.spec
+- BLE scanning
+- Device identification
+- Compatible watch detection
 
-CONTRIBUTING
-------------
+### Connection Layer
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+- BLE GATT connection handling
+- Communication channel initialization
 
-LICENSE
--------
+### Transfer Protocol
 
-This project is licensed under the GNU General Public License v3.0.
+- D1 protocol frames for:
+  - File metadata
+  - Transfer initialization
+  - Transfer control
 
-DISCLAIMER
-----------
+- Chunked binary data streaming
+- Transfer progress calculation
+- Checksum verification
 
-- This software is not affiliated with VeryFit or IDO.
-- **SIDELOADING WATCH FACES ON YOUR VERYFIT WATCH WILL CAUSE THE WARRANTY TO VOID AND CANNOT BE REPAIRED IF BOOTLOOPS HAPPEN. USE THIS TOOL AT YOUR OWN RISK.**
+### Watch Face Application
 
-ACKNOWLEDGMENTS
----------------
+- V3 protocol commands
+- Watch face activation requests
 
-- Based on reverse engineering work from the VeryFit protocol
+---
+
+# Technical Details
+
+## Compression
+
+VERYLOAD supports:
+
+### FastLZ (Default)
+
+- Real FastLZ level-1 compression
+- Compatible with the compression method used by the official VeryFit application
+
+### Uncompressed Mode
+
+- Sends raw `.iwf` data
+- Useful for debugging and protocol testing
+
+---
+
+## Protocol Documentation
+
+Protocol fields and packet structures were validated through captured BLE communication from the official VeryFit application.
+
+See:
+
+```
+PROTOCOL_SPEC.md
+```
+
+for detailed protocol documentation.
+
+---
+
+# Supported Devices
+
+Compatibility depends on the firmware implementation of the watch.
+
+Confirmed working:
+
+| Device | Status |
+|--------|--------|
+| IDW20 | ✅ Tested |
+
+Other VeryFit/IDO devices may work if they use the same watch face protocol.
+
+---
+
+# Known Limitations
+
+- Only `.iwf` watch face files are supported.
+- Requires a compatible VeryFit/IDO smartwatch.
+- BLE instability may interrupt transfers.
+- Some firmware versions may reject unsupported watch faces.
+- Custom watch faces cannot be recovered if a malformed file causes firmware-level issues.
+
+---
+
+# Troubleshooting
+
+## "No BLE devices found"
+
+Try:
+
+- Ensure Bluetooth is enabled.
+- Make sure the watch is awake.
+- Enable discoverable mode if supported.
+- Move closer to the watch.
+- Verify your computer has BLE support.
+
+---
+
+## "Connection failed"
+
+Try:
+
+- Restarting the watch.
+- Disconnecting the watch from VeryFit or other apps.
+- Restarting Bluetooth.
+- Updating BLE adapter drivers.
+
+---
+
+## "Upload failed"
+
+Check:
+
+- The `.iwf` file is valid.
+- The watch has enough storage.
+- BLE connection quality is stable.
+
+You can also try disabling compression.
+
+---
+
+# Development
+
+## Run Tests
+
+```bash
+pytest tests/
+```
+
+## Build Executable
+
+```bash
+pyinstaller veryload.spec
+```
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+1. Fork this repository.
+2. Create a feature branch.
+3. Make your changes.
+4. Submit a pull request.
+
+---
+
+# License
+
+VERYLOAD is licensed under the:
+
+**GNU General Public License v3.0**
+
+---
+
+# Disclaimer
+
+VERYLOAD is an independent community project.
+
+- This project is **not affiliated with VeryFit, Shenzhen DO Intelligent Technology Co., Ltd., or IDO**.
+- The watch face protocol was implemented through reverse engineering.
+- Sideloading unsupported watch faces may damage your device or void warranty coverage.
+- Use this software at your own risk.
+
+---
+
+# Acknowledgements
+
+- Reverse engineering research of the VeryFit BLE protocol
 - FastLZ reference implementation by Ariya Hidayat
-- Built with Bleak and PyQt6
+- [Bleak](https://github.com/hbldh/bleak) BLE framework
+- PyQt6 GUI framework
 
-SUPPORT
--------
+---
 
-For issues and questions, please open an issue on GitHub:
+# Success: Watch Face Sideloading (IDW20)
+
+VeryLoad has successfully demonstrated custom watch face sideloading on the **VeryFit IDW20**.
+
+The device accepts modified `.iwf` watch faces transferred directly through BLE.
+
+<img width="3000" height="4000" alt="IDW20 VeryFit watch face sideloading result" src="https://github.com/user-attachments/assets/3a7c6a86-1d4c-42fa-ad1f-6a85f9318b16" />
+
+<img width="1080" height="2340" alt="VeryFit application showing modified watch face" src="https://github.com/user-attachments/assets/b57248a9-a3b5-4eb5-8252-66ca36fbb889" />
+
+---
+
+# Support
+
+For bugs, questions, or protocol research discussions:
+
+Open an issue:
+
 https://github.com/coolsteel712/veryload/issues
