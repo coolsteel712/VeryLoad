@@ -1,11 +1,21 @@
 # VeryFit / IDO BLE Watch Face Upload Protocol — Reverse-Engineering Spec
 
-**Source evidence:** `2026-07-21.txt` — an internal debug log from the official VeryFit-family
-iOS app (`clib` logging layer, source files `protocol.c`, `protocol_v3.c`, `protocol_v3_queue.c`,
-`data_tran.c`, `mkWatchFace.cpp`, `fastlz_util.c`). It captures every app-layer `TX`/`RX` byte
-buffer during a real watch-face upload (`custom1.iwf` → `custom1.iwf.lz`) to an IDO-protocol-V3
-watch, plus companion `.iwf` (`f283.iwf`) and OTA firmware (`idw26_ota_V1.00.14_20260211.fw`)
-files.
+**Source evidence:**
+1. `2026-07-21.txt` — an internal debug log from the official VeryFit-family iOS app (`clib`
+   logging layer, source files `protocol.c`, `protocol_v3.c`, `protocol_v3_queue.c`,
+   `data_tran.c`, `mkWatchFace.cpp`, `fastlz_util.c`). It captures every app-layer `TX`/`RX` byte
+   buffer during a real watch-face upload (`custom1.iwf` → `custom1.iwf.lz`) to an IDO-protocol-V3
+   watch, plus companion `.iwf` (`f283.iwf`) and OTA firmware (`idw26_ota_V1.00.14_20260211.fw`)
+   files. This is an **application-layer** capture — no GATT UUIDs, no raw over-the-air bytes.
+2. `btsnoop_hci.log` (2026-07-26) — a full Android HCI snoop capture (pulled via a Samsung
+   bug-report bundle, `FS/data/log/bt/btsnoop_hci.log`) of a real official-app upload of
+   `f283.iwf` to the same IDW26 unit. This is a **link-layer** capture — actual GATT
+   service/characteristic UUIDs, actual ATT opcodes, and the literal bytes of every packet
+   written to the watch, including the raw data-transfer packets the app-layer log never
+   printed. Parsed by hand (ACL reassembly keyed per `(connection handle, direction)`, since
+   inbound/outbound fragmentation states are independent; L2CAP PDU boundaries taken from the
+   `length`/`cid` header on each start fragment) rather than in Wireshark. This capture is what
+   promotes §1 and §5.3 below from UNKNOWN/LIKELY to CONFIRMED.
 
 Every field below is tagged:
 - **CONFIRMED** — directly observed and cross-checked against explicit log values (e.g. the app
@@ -26,14 +36,15 @@ were written to / read from the watch's characteristic(s), but not the BLE servi
 
 | Item | Status | Notes |
 |---|---|---|
-| Service UUID | **UNKNOWN** | Not present in this log (app-layer only). Must be discovered live via GATT enumeration against a real device. |
-| Write characteristic UUID | **UNKNOWN** | Same as above. |
-| Notify characteristic UUID | **UNKNOWN** | Same as above. |
-| Transport | **LIKELY** | Write + Notify pair (single bidirectional pipe multiplexing every command family below — 2-byte "GET" commands, `0x33`-wrapped "V3" commands, and `0xD1` file-transfer commands all share the same TX/RX log stream). |
+| Service UUID | **CONFIRMED** | `00000af0-0000-1000-8000-00805f9b34fb` — the vendor service, seen directly in both the sideloader's own GATT discovery log and the btsnoop capture of the real app's session against the same IDW26 unit. |
+| Write characteristic UUID | **CONFIRMED** | `00000af6-0000-1000-8000-00805f9b34fb` (props: read, write, write-without-response) is the one actually used by the official app for every `D1`/`V3` command and every raw data packet in the btsnoop capture. A second write characteristic, `00000af1-...`, exists in the same service with identical properties but was not observed carrying any traffic in this capture — its purpose is **UNKNOWN**. |
+| Notify characteristic UUID | **CONFIRMED** | `00000af7-0000-1000-8000-00805f9b34fb` (props: notify, read) — carries every ack and progress notification in the capture. A second notify characteristic, `00000af2-...`, exists with identical properties but was not observed carrying any traffic — **UNKNOWN** purpose. |
+| Transport | **CONFIRMED** | Single write characteristic (`0x0af6`) + single notify characteristic (`0x0af7`), multiplexing every command family — 2-byte "GET" commands, `0x33`-wrapped "V3" commands, and `0xD1` file-transfer commands (control frames *and* raw data packets, see §5) all share this one pipe. |
 
-**Do not guess the UUIDs.** The uploader below performs live service/characteristic discovery
-and selects candidates by GATT *properties* (write / write-without-response + notify), logging
-every candidate so a human can confirm the right pair for a specific watch model on first run.
+The sideloader's live discovery logic (selecting by GATT *properties* rather than hard-coding
+these UUIDs) is still the right approach for portability across other watch models in this
+family — but for the specific IDW26 unit this project has been tested against, the pair above is
+now a confirmed fact, not a guess.
 
 ---
 
@@ -199,10 +210,25 @@ RX: D1 05 <status:u8> <batch_size:u16 LE> 00...00
 Observed: `D1 05 0A` → ack echoes `0A 00` (=10). **LIKELY** meaning: 10 raw write packets are sent
 per "batch" before the app logs a progress update; corroborated arithmetically in §5.3.
 
-**Raw data packets — UNCONFIRMED framing.** The log's debug level does not print the individual
-file-content writes (only the 4 control commands above and periodic `notice_packet_completed`
-progress percentages are logged). This is the single biggest gap in this reverse-engineering
-pass — see §5.3 for the best-effort reconstruction and §7 for what evidence would close the gap.
+**`0x02` — SEND_DATA (raw file-content packet)** — **CONFIRMED** from the btsnoop capture (this
+was UNCONFIRMED/reconstructed in earlier revisions of this spec; see §5.3 for how the gap was
+closed):
+```
+TX: D1 02 00 <up to 177 bytes of compressed file payload>
+RX: D1 02 <status:u8> <cumulative_running_value:u32 LE> <cumulative_bytes_sent:u32 LE>
+```
+Observed hundreds of times per transfer, e.g. `D1 02 00 <177 bytes>` sent for every full packet,
+and a periodic ack `D1 02 00 A92E0200 EA060000` (→ running_value=0x00022EA9=143017,
+cumulative_bytes=0x000006EA=1770=10×177) sent by the watch after every **batch** of packets
+(batch size from `0x05` below). This is the sub-command every raw data write is wrapped in — it
+is **not** bare unframed file bytes, despite that being a reasonable first guess. The 3rd byte of
+the TX form (`0x00`) was constant across every packet observed in this capture; its purpose is
+**UNKNOWN** (possibly a reserved/flags byte with only one value ever exercised).
+The RX ack's first `u32` (`running_value` above) increases roughly monotonically but not by a
+constant amount per batch — **POSSIBLE**: a running checksum computed incrementally over bytes
+sent so far (would explain the non-constant deltas), but not confirmed against any independent
+reference. The second `u32` is unambiguously the cumulative byte count sent so far — confirmed by
+its constant per-batch delta of `batch_size × 177`.
 
 **`0x03` — END_TRANSFER (verify)**:
 ```
@@ -215,36 +241,44 @@ computed — no reference source bytes for `custom1.iwf.lz` were captured to tes
 other candidates). **POSSIBLE**: CRC32 of the compressed payload, given the app's general
 preference for CRC16/CRC32 elsewhere and the value's byte-width; not verified.
 
-### 5.3 Raw data packet reconstruction — LIKELY (arithmetic reconstruction, not directly observed)
+### 5.3 Raw data packet framing — CONFIRMED (closed via btsnoop capture; supersedes earlier guess)
 
-From the log:
-```
-[data_tran.c] [process_write_packet] send end,total send size:87572
-    last notice packet cout:5 last packet data length:842
-```
-- Total compressed bytes sent: 87572 (matches START_TRANSFER's declared size).
-- Progress percentage was reported ~50 times, close to evenly spaced (2%, 4%, 6%, …, 99%),
-  consistent with **10 packets per batch** (from the `0x05` negotiation) × ~49 full batches + one
-  final partial batch of **5** packets.
-- If each full raw packet carries `ATT_MTU - 3` = `180 - 3` = **177 bytes** of file payload:
-  `87572 / 177 ≈ 494.75` ⇒ **495 total packets** (494 full + 1 short final packet of 134 bytes).
-  Grouped into batches of 10, that's 49 full batches (490 packets) + 1 final batch of **5**
-  packets — which matches the log's own "last notice packet cout:5" exactly, and
-  `4 × 177 + 134 = 842` matches the log's own "last packet data length:842" exactly.
+**History note, kept for context:** the original app-layer-log-only pass reconstructed this
+section arithmetically (packet count and last-batch size derived from progress-percentage log
+lines) and concluded no per-packet header was present, because the total-bytes arithmetic
+appeared to balance without one. That reconstruction was **wrong** — it happened to balance
+because the arithmetic used total file bytes vs. total *payload* bytes and never had a live
+reference for the actual per-packet wire size to check against. The btsnoop capture below is the
+ground truth; §5.2's `0x02` entry is the corrected framing.
 
-This is strong (two independent numeric matches) but still **LIKELY, not CONFIRMED**, because the
-per-packet framing itself was never logged. Best-effort reconstruction used by the sideloader:
-
-```
-packet_payload_size = negotiated_att_mtu - 3      # 177 bytes at MTU 180
-for each packet: write_without_response(raw_file_bytes[offset : offset+packet_payload_size])
-send in groups of `batch_size` (from D1 05, default 10), pacing between groups to match
-observed ~150-250ms per batch rather than flooding all writes back-to-back
-no additional per-packet header, sequence number, or offset field is prepended — CONFIRMED
-absence in the sense that total-bytes-in equals total-bytes-out with no unaccounted overhead
-byte count in the arithmetic above (if there were a header, the numbers above would not match
-exactly).
-```
+From the btsnoop capture (official app uploading `f283.iwf`, 246758 bytes uncompressed → 116493
+bytes compressed per its own `START_TRANSFER` declaration):
+- Every data write on the wire is **183 ATT bytes total**: `Write Command` opcode (1) +
+  characteristic handle (2) + 180-byte value. Of that 180-byte value, the first **3 bytes are the
+  `D1 02 00` header** (see §5.2), leaving **177 bytes of actual file payload per packet** — not
+  180.
+- Packet size formula, corrected:
+  ```
+  packet_payload_size = negotiated_att_mtu - att_header_overhead - data_chunk_header_size
+                        = 183 - 3 - 3 = 177   (at the negotiated MTU of 183 seen in this capture)
+  ```
+  The earlier `att_mtu - 3` formula was short by exactly the 3-byte `D1 02 00` header this section
+  now confirms.
+- 655 packets of 180-byte value + 1 final short packet of 49-byte value (46 bytes of real
+  payload) were observed for this transfer — consistent with `batch_size=10` (see `0x05` below)
+  grouping into 65 full batches + a partial final batch, matching the cadence of `D1 02` progress
+  acks described in §5.2.
+- Packets are sent as **ATT Write Command** (opcode `0x52`, no response expected at the ATT
+  layer) — CONFIRMED from the capture. The watch's own `D1 02` progress notifications (§5.2) are
+  the only feedback during this phase; nothing in the capture suggests the sender waits for one
+  before continuing the next batch (writes within a batch were spaced ~3-5ms apart with no gap
+  for a reply), though pacing *between* batches to avoid flooding the link is still sensible
+  practice as before.
+- A client that fails to prepend the `D1 02 00` header (i.e. sends 180 bytes of bare file content
+  per packet, as earlier revisions of this sideloader did) will have every packet silently
+  unrecognized by the watch: the watch never assembles a complete file, so it also never reaches
+  a state where it can ack or reject `END_TRANSFER` — the transfer just hangs indefinitely at that
+  final step with no error, which is exactly what was observed before this gap was closed.
 
 ### 5.4 Full sequence (session order) — CONFIRMED
 
@@ -277,17 +311,3 @@ storage.
   **no compression** (`compression_type=0`) until that port is ready to be wired in — sending
   uncompressed data is not confirmed to be accepted by real firmware, so this defaults to a
   conservative, clearly-logged fallback rather than a guessed reimplementation.
-
----
-
-## 7. Known gaps — what would close them
-
-1. **GATT service/characteristic UUIDs** — need a live `bleak` service discovery dump against a
-   real watch (the sideloader does this automatically and logs candidates).
-2. **Raw per-chunk framing during file transfer** — need a debug/verbose capture (Android
-   `btsnoop_hci.log`, or a BLE sniffer) that shows the actual over-the-air writes during the
-   `D1 05` → `D1 03` window; this log's `clib.D` tap did not print them.
-3. **`D1 03` checksum algorithm** — need the actual bytes of a compressed `.iwf.lz` payload to
-   test candidate checksums (CRC32, Adler32, etc.) against the observed value.
-4. **Non-success status codes** for any `D1`-family ack (only status `0x00` was ever observed).
-5. **`0xFF` sentinel byte** in `D1 08` / `D1 01` payloads — only one value ever observed.
