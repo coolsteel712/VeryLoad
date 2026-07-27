@@ -79,7 +79,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 4. Launch VERYLOAD
+## 4. Launch VeryLoad
 
 ```bash
 python main.py
@@ -91,7 +91,7 @@ python main.py
 
 ## 1. Connect Your Watch
 
-1. Open VERYLOAD.
+1. Open VeryLoad.
 2. Click **Scan** to search for nearby BLE devices.
 3. Select your VeryFit/IDO smartwatch.
 4. Click **Connect**.
@@ -132,7 +132,7 @@ During an active transfer:
 
 # Protocol Implementation
 
-VERYLOAD implements the VeryFit BLE watch face transfer protocol:
+VeryLoad implements the VeryFit BLE watch face transfer protocol:
 
 ### Device Discovery
 
@@ -166,8 +166,7 @@ VERYLOAD implements the VeryFit BLE watch face transfer protocol:
 # Technical Details
 
 ## Compression
-
-VERYLOAD supports:
+VeryLoad supports:
 
 ### FastLZ (Default)
 
@@ -178,20 +177,6 @@ VERYLOAD supports:
 
 - Sends raw `.iwf` data
 - Useful for debugging and protocol testing
-
----
-
-## Protocol Documentation
-
-Protocol fields and packet structures were validated through captured BLE communication from the official VeryFit application.
-
-See:
-
-```
-PROTOCOL_SPEC.md
-```
-
-for detailed protocol documentation.
 
 ---
 
@@ -285,7 +270,7 @@ Contributions are welcome.
 
 # License
 
-VERYLOAD is licensed under the:
+VeryLoad is licensed under the:
 
 **GNU General Public License v3.0**
 
@@ -293,7 +278,7 @@ VERYLOAD is licensed under the:
 
 # Disclaimer
 
-VERYLOAD is an independent community project.
+VeryLoad is an independent community project.
 
 - This project is **not affiliated with VeryFit, Shenzhen DO Intelligent Technology Co., Ltd., or IDO**.
 - The watch face protocol was implemented through reverse engineering.
@@ -322,6 +307,9 @@ The device accepts modified `.iwf` watch faces transferred directly through BLE.
 <img width="1080" height="2340" alt="VeryFit application showing modified watch face" src="https://github.com/user-attachments/assets/b57248a9-a3b5-4eb5-8252-66ca36fbb889" />
 
 ---
+
+# Compiling Watch Faces
+Use the ActionsDialMake compiler tool to compile a folder (iwf.json required, iwf1 or font.json is optional) into an .iwf file.
 
 # Support
 
