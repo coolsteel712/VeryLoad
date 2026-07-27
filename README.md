@@ -2,7 +2,7 @@
 
 A cross-platform desktop application for sideloading custom watch faces onto **VeryFit/IDO smartwatches** using Bluetooth Low Energy (BLE).
 
-VERYLOAD provides a complete workflow for discovering compatible devices, transferring `.iwf` watch face files, and applying custom watch faces without requiring the official VeryFit application.
+VeryLoad provides a complete workflow for discovering compatible devices, transferring `.iwf` watch face files, and applying custom watch faces without requiring the official VeryFit application.
 
 > ⚠️ **Warning:** This tool uses a reverse-engineered protocol. Sideloading custom watch faces may void your device warranty. Incorrect files or interrupted transfers may cause watch face corruption or, in rare cases, boot issues. Use at your own risk.
 
