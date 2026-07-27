@@ -1,4 +1,4 @@
-# VERYLOAD - VeryFit Watch Face Sideloader
+# VeryLoad - VeryFit Watch Face Sideloader
 
 A cross-platform desktop application for sideloading custom watch faces onto **VeryFit/IDO smartwatches** using Bluetooth Low Energy (BLE).
 
