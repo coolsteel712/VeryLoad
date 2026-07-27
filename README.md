@@ -6,9 +6,9 @@ VeryLoad provides a complete workflow for discovering compatible devices, transf
 
 > ⚠️ **Warning:** This tool uses a reverse-engineered protocol. Sideloading custom watch faces may void your device warranty. Incorrect files or interrupted transfers may cause watch face corruption or, in rare cases, boot issues. Use at your own risk.
 
-> ❌ **CRITICAL**: Do not use the IWFmake .iwf compiler. It generates watch face files that shows no output on VeryFit devices, including on VeryEmulate (VortexWatch Studio's Watch Face Emulator) and can cause your watch to enter a boot loop or, in rare cases, become permanently unusable ("hard-bricked"). Use the official IDO watch face compiler, ActionsDialMake, instead.
+> ❌ **CRITICAL:** Do not use the IWFmake .iwf compiler. It generates watch face files that shows no output on VeryFit devices, including on VeryEmulate (VortexWatch Studio's Watch Face Emulator) and can cause your watch to enter a boot loop or, in rare cases, become permanently unusable ("hard-bricked"). Use the official IDO watch face compiler, ActionsDialMake, instead.
 
-> ℹ️ **Important** If you prefer making watch faces showing the preview instead of manually making JSON files or assets, use ArnCep's open-source editor for designing watch faces: https://arncep.github.io/ATSDialFactory/
+> ℹ️ **Important:** If you prefer making watch faces showing the preview instead of manually making JSON files or assets, use ArnCep's open-source editor for designing watch faces: https://arncep.github.io/ATSDialFactory/
 ---
 
 ## Features
