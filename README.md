@@ -366,7 +366,7 @@ The device accepts modified `.iwf` watch faces transferred directly through BLE.
 ---
 
 # Compiling Watch Faces
-Use the ActionsDialMake compiler tool to compile a folder (iwf.json required, iwf1 or font.json is optional) into an .iwf file.
+Use the ActionsDialMake compiler tool to compile a folder (iwf.json required, iwf1.json or font.json is optional) into an .iwf file.
 
 # Support
 
