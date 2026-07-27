@@ -6,7 +6,7 @@ VeryLoad provides a complete workflow for discovering compatible devices, transf
 
 > ⚠️ **Warning:** This tool uses a reverse-engineered protocol. Sideloading custom watch faces may void your device warranty. Incorrect files or interrupted transfers may cause watch face corruption or, in rare cases, boot issues. Use at your own risk.
 
-> ❌ **CRITICAL:** Do not use the IWFmake .iwf compiler. It generates watch face files that shows no output on VeryFit devices, including on VeryEmulate (VortexWatch Studio's Watch Face Emulator) and can cause your watch to enter a boot loop or, in rare cases, become permanently unusable ("hard-bricked"). Use the official IDO watch face compiler, ActionsDialMake, instead.
+> ❌ **CRITICAL:** Do not use the IWFmake .iwf compiler. It generates watch face files that shows no output on VeryFit devices, including on VeryEmulate (VortexWatch Studio's Watch Face Emulator) and can cause your watch to enter a boot loop or, in rare cases, become permanently unusable ("hard-bricked"). Use ArnCep's open-source watch face compiler, CloudDialMake, instead.
 
 > ℹ️ **Important:** If you prefer making watch faces showing the preview instead of manually making JSON files or assets, use ArnCep's open-source editor for designing watch faces: https://arncep.github.io/ATSDialFactory/
 ---
@@ -37,7 +37,7 @@ Follow these steps carefully:
    - ⚠️ Do **not** factory reset the watch.
 
 9. Rebuild your custom watch face using the official IDO compiler:
-   - ✅ Use **ActionsDialMake**
+   - ✅ Use **CloudDialMake**
    - ❌ Do not use **IWFmake**
 
 10. Open **VeryLoad**.
@@ -60,7 +60,7 @@ Follow these steps carefully:
 
 To avoid future boot loops:
 
-- Always compile `.iwf` files using **ActionsDialMake**.
+- Always compile `.iwf` files using **CloudDialMake**.
 - Verify that the watch face matches your device model and firmware.
 - Avoid uploading modified or unsupported `.iwf` files.
 - Keep the watch connected to power during large transfers.
@@ -366,7 +366,7 @@ The device accepts modified `.iwf` watch faces transferred directly through BLE.
 ---
 
 # Compiling Watch Faces
-Use the ActionsDialMake compiler tool to compile a folder (iwf.json required, iwf1.json or font.json is optional) into an .iwf file.
+Use the CloudDialMake compiler tool to compile a folder (iwf.json required, iwf1.json or font.json is optional) into an .iwf file.
 
 # Support
 
