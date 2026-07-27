@@ -11,6 +11,60 @@ VeryLoad provides a complete workflow for discovering compatible devices, transf
 > ℹ️ **Important:** If you prefer making watch faces showing the preview instead of manually making JSON files or assets, use ArnCep's open-source editor for designing watch faces: https://arncep.github.io/ATSDialFactory/
 ---
 
+## Recovering From Watch Face Boot Loops
+
+If you used **IWFmake** to generate an `.iwf` file, uploaded it to your watch, and the device is now stuck in a boot loop, **do not panic**. In most cases, the watch can be recovered by replacing the corrupted watch face with an official one through the VeryFit app.
+
+Follow these steps carefully:
+
+1. **Close VeryLoad completely.**
+
+2. **Connect the watch to its charger.**
+   - Keep the watch in charging mode during the recovery process.
+
+3. **Open the official VeryFit app.**
+
+4. **Connect to your watch while it is still charging.**
+
+5. Navigate to the **Photo Watch Face** page.
+
+6. If the corrupted watch face has occupied the available watch face storage:
+   - Tap **Overwrite** to replace it.
+
+7. Tap **Install** and wait for the official VeryFit watch face to finish syncing.
+
+8. **Unbind the watch from the VeryFit app.**
+   - ⚠️ Do **not** factory reset the watch.
+
+9. Rebuild your custom watch face using the official IDO compiler:
+   - ✅ Use **ActionsDialMake**
+   - ❌ Do not use **IWFmake**
+
+10. Open **VeryLoad**.
+
+11. Click **Scan Devices**.
+
+12. Select your watch from the device list (e.g., `IDW26`) and connect.
+
+13. Select the newly compiled `.iwf` watch face file.
+
+14. Click **Upload**.
+
+15. Wait for the watch face transfer to complete.
+
+16. Done — your watch should now boot normally with the new watch face installed.
+
+---
+
+### Prevention
+
+To avoid future boot loops:
+
+- Always compile `.iwf` files using **ActionsDialMake**.
+- Verify that the watch face matches your device model and firmware.
+- Avoid uploading modified or unsupported `.iwf` files.
+- Keep the watch connected to power during large transfers.
+
 ## Features
 
 - **BLE Device Discovery**  
