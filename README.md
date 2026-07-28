@@ -36,7 +36,7 @@ Follow these steps carefully:
 8. **Unbind the watch from the VeryFit app.**
    - ⚠️ Do **not** factory reset the watch.
 
-9. Rebuild your custom watch face using the official IDO compiler:
+9. Rebuild your custom watch face using the correct Open-Source compiler:
    - ✅ Use **CloudDialMake**
    - ❌ Do not use **IWFmake**
 
