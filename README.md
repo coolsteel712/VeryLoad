@@ -241,11 +241,14 @@ VeryLoad supports:
 
 Compatibility depends on the firmware implementation of the watch.
 
-Confirmed working:
+Confirmed compatibility:
 
-| Device | Status |
-|--------|--------|
-| IDW20 | ✅ Tested |
+| Device | Status | Date of Test |
+|--------|--------|---------------
+| IDW20 | ✅ Working | 2026/07/26
+| IDW26 | ✅️ Working | 2026/11/25
+| IDW29 | ⚠️ Possibly; Not tested | —
+| boAT Xtend (ID207) | ❌️ Rejected: **SET_FILE_INFO failure; Uses Protocol Version 2 instead of Version 3** | 2026/08/24
 
 Other VeryFit/IDO devices may work if they use the same watch face protocol.
 
