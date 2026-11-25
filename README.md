@@ -258,6 +258,7 @@ Other VeryFit/IDO devices may work if they use the same watch face protocol.
 - BLE instability may interrupt transfers.
 - Some firmware versions may reject unsupported watch faces.
 - Custom watch faces cannot be recovered if a malformed file causes firmware-level issues.
+- Protocol Version 3 is **the only version supported**. Protocol Versions 2 or lower will **not** work.
 
 ---
 
