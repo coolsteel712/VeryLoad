@@ -8,7 +8,7 @@ VeryLoad provides a complete workflow for discovering compatible devices, transf
 
 > ❌ **CRITICAL:** Do not use the IWFmake .iwf compiler. It generates watch face files that shows no output on VeryFit devices, including on VeryEmulate (VortexWatch Studio's Watch Face Emulator) and can cause your watch to enter a boot loop or, in rare cases, become permanently unusable ("hard-bricked"). Use ArnCep's open-source watch face compiler, CloudDialMake, instead.
 
-> ℹ️ **Important:** If you prefer making watch faces showing the preview instead of manually making JSON files or assets, use the open-source editor for designing watch faces: https://github.com/coolsteel712/VeryWatchTool/
+> ℹ️ **Important:** If you prefer making watch faces showing the preview instead of manually making JSON files or assets, use the open-source editor by ArnCepTech for designing watch faces: https://github.com/ArnCepTech/ATSDialFactory
 ---
 
 ## Recovering From Watch Face Boot Loops
